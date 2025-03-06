@@ -1,5 +1,3 @@
-#include "../include/type_traist_notebook.hpp"
-
 static constexpr struct change_these_options_to_select_what_will_be_printed
 {
     constexpr static int longest_macro_name { 45 };

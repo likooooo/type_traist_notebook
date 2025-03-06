@@ -1,4 +1,11 @@
 #pragma once
+#include <string>
+#include <iostream>
+#include <cxxabi.h>
+#include <vector>
+#include <array>
+#include <tuple>
+#include <iomanip>
 //== type to string
 template<class T> inline std::string TypeReflection() {
     const char* mangled_name = typeid(T).name();

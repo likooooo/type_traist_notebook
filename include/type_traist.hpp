@@ -1,14 +1,5 @@
 #pragma once 
 #include <type_traits>
-#include <iostream>
-#include <string>
-#include <cxxabi.h>
-#include <string>
-#include <map>
-#include <vector>
-#include <array>
-#include <tuple>
-#include <iomanip>
 #include <complex>
 
 template<class T> struct unreachable_constexpr_if{unreachable_constexpr_if(){static_assert(std::is_same_v<T, void>, "template unreachable");}}; 

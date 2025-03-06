@@ -1,4 +1,4 @@
-#include "../include/type_traist_notebook.hpp"
+#include "../include/type_traist.hpp"
 
 void message_test_success(const char* s){
     printf("test success: %s\n\n", s);
