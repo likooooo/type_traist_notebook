@@ -39,5 +39,14 @@ namespace std{
 }
 #endif
 
+template<size_t i, size_t size, class TCallback, class ...TArgs>
+static inline constexpr void static_for(TCallback&& callback, TArgs&& ...args)
+{
+    if constexpr( i < size){
+        callback(i, std::forward<TArgs>(args)...);
+        static_for<i+1, size>(std::forward<TCallback>(callback), std::forward<TArgs>(args)...);
+    }
+}
+
 #include "pretty_print.hpp"
 #include "numerics.hpp"
