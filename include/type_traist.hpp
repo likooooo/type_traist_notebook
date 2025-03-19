@@ -8,6 +8,24 @@ namespace std{
     template<class ...T> struct is_complex: std::false_type{};
     template<class T> struct is_complex <std::complex<T>>: std::true_type{};
     template<class T> constexpr static bool is_complex_v = is_complex<T>::value; 
+
+    template<class T> struct tuple_size<std::complex<T>> : integral_constant<size_t, 2> {};
+    template<size_t I, class T> struct tuple_element<I, std::complex<T>> {using type = T;};
+    template<size_t I, class T> T& get(std::complex<T>& c) 
+    {
+        static_assert(std::is_reference_v<decltype(c.real())>, "return value is NOT reference type");
+        if constexpr (I == 0)
+            return c.real();
+        else
+            return c.imag();
+    }
+    template<size_t I, class T> T get(const std::complex<T>& c) 
+    {
+        if constexpr (I == 0)
+            return c.real();
+        else
+            return c.imag();
+    }
 }
 
 template <class T> struct complex_type { 

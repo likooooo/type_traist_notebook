@@ -3,7 +3,14 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 add_executable(feature_testing feature_testing.cpp)
 
-add_executable(test_cpp20 test.cpp)
-target_compile_features(test_cpp20 PRIVATE cxx_std_20)
-add_executable(test_cpp17 test.cpp)
-target_compile_features(test_cpp17 PRIVATE cxx_std_17)
+file(GLOB tests ${CMAKE_CURRENT_LIST_DIR}/test_*.cpp)
+foreach(test IN LISTS tests)
+    get_filename_component(test_WLE ${test} NAME_WLE)
+    set(test_name ${test_WLE}_cpp20)
+    add_executable(${test_name} ${test})
+    target_compile_features(${test_name} PRIVATE cxx_std_20)
+    
+    set(test_name ${test_WLE}_cpp17)
+    add_executable(${test_name} ${test})
+    target_compile_features(${test_name} PRIVATE cxx_std_17)
+endforeach()

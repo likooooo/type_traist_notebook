@@ -4,6 +4,26 @@
 #include <numeric>
 #include <array>
 
+constexpr long double operator"" _PI(long double value) {
+    return value * M_PI;
+}
+constexpr long double operator"" _PI(unsigned long long value) {
+    return value * M_PI;
+}
+constexpr std::complex<float> operator"" _I(long double value) {
+    return std::complex<float>(0, value);
+}
+constexpr std::complex<float> operator"" _I(unsigned long long value) {
+    return std::complex<float>(0, value);
+}
+constexpr std::complex<float> operator"" _PI_I(long double value) {
+    return std::complex<float>(0, value * M_PI);
+
+}
+constexpr std::complex<float> operator"" _PI_I(unsigned long long value) {
+    return std::complex<float>(0, value * M_PI);
+}
+
 template <class T, size_t N>
 using vec = std::array<T, N>;
 template <class T> using vec2 = vec<T, 2>;
@@ -76,8 +96,10 @@ LOGIC_OPERATOR_DEFINE(!=);
 LOGIC_OPERATOR_DEFINE(&&);
 LOGIC_OPERATOR_DEFINE(||);
 
+template<class T> constexpr inline std::enable_if_t<std::is_arithmetic_v<T>, T> conj (T n){return n;} 
+template<class T> constexpr inline std::enable_if_t<std::is_complex_v<T>, T> conj (T n){return std::conj(n);} 
 template<class T, size_t N> constexpr inline std::array<T, N> conj(std::array<T, N> vec){
-    for(auto& n : vec) n = std::conj(n);
+    if constexpr(std::is_complex_v<T>) for(auto& n : vec) n = std::conj(n);
     return vec;
 }
 template<class T, class TAlloc> constexpr inline std::vector<T, TAlloc> exp(std::vector<T, TAlloc> vec){
@@ -89,7 +111,7 @@ template<class T, size_t N> constexpr inline std::array<T, N> exp(std::array<T, 
     return vec;
 }
 template<class T, class TAlloc> constexpr inline std::vector<T, TAlloc> conj(std::vector<T, TAlloc> vec){
-    for(auto& n : vec) n = std::conj(n);
+    if constexpr(std::is_complex_v<T>) for(auto& n : vec) n = std::conj(n);
     return vec;
 }
 template<class T, size_t N> constexpr inline std::array<real_t<T>, N> norm(const std::array<T, N>& n){
@@ -122,28 +144,57 @@ template<class T, size_t N> constexpr inline real_t<T> vector_norm(const std::ar
     );
 }
 
-template <class T, size_t... dims>
-struct matrix;
-template <class T, size_t xsize>
-struct matrix<T, xsize> : public vec<T, xsize>
-{
-    matrix<T, xsize>& operator=(const vec<T, xsize>& v){
-        static_cast<vec<T, xsize>&>(*this) = v;
-        return *this;
-    }
-};
 template <class T, size_t fast_dim, size_t... dims>
-struct matrix<T, fast_dim, dims...> : public vec<matrix<T, dims...>, fast_dim>
+struct matrix_type
 {
+    using type = vec<
+        typename matrix_type<T, dims...>::type
+        , fast_dim
+    >;
+};
+template <class T, size_t fast_dim>
+struct matrix_type<T, fast_dim>
+{
+    using type = vec<T, fast_dim>;
 };
 
+template <class T, size_t slow_dim, size_t... dims>
+using matrix = typename matrix_type<T, slow_dim, dims...>::type;
 template <class T> using matrix2x3 = matrix<T, 2, 3>; 
+template <class T> using matrix2x2 = matrix<T, 2, 2>; 
+template <class T> using matrix3x3 = matrix<T, 3, 3>; 
 
-constexpr long double operator"" _PI(long double value) {
-    return value * M_PI;
+template<class T, size_t N> constexpr inline matrix<T, N, N> set_matrix_row_major(const matrix<T, N, N>& m) {
+    matrix<T, N, N> result{};
+    for (size_t i = 0; i < N; ++i) {
+        for (size_t j = 0; j < N; ++j) {
+            result[i][j] = m[j][i];
+        }
+    }
+    return result;
 }
-constexpr long double operator"" _PI(unsigned long long value) {
-    return value * M_PI;
+// is_matrix, is_vector
+
+template<class T, size_t N> constexpr inline T operator | (vec<T, N> row_major_matrix_or_vec, T col_major_vec_or_scalar)
+{
+    using ::conj;
+    col_major_vec_or_scalar = conj(col_major_vec_or_scalar);
+    if constexpr (std::is_arithmetic_v<T> || std::is_complex_v<T>)
+    {
+        row_major_matrix_or_vec *= col_major_vec_or_scalar;
+        return std::accumulate(row_major_matrix_or_vec.begin(), row_major_matrix_or_vec.end(), T(0));
+    }
+    else{
+        T vec_or_scalar{0};
+        int i = 0; 
+        for(auto& row : row_major_matrix_or_vec)
+        {
+            row *= col_major_vec_or_scalar;
+            vec_or_scalar.at(i) = std::accumulate(row.begin(), row.end(), typename T::value_type(0));
+            i++;
+        }
+        return vec_or_scalar;
+    }
 }
 
 template<class T> inline bool is_almost_equal(T a, T b, T epsion = std::numeric_limits<T>::epsilon())
