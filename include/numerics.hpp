@@ -28,6 +28,7 @@ template <class T, size_t N>
 using vec = std::array<T, N>;
 template <class T> using vec2 = vec<T, 2>;
 template <class T> using vec3 = vec<T, 3>;
+template <class T> using dual_vec = vec2<T>;
 
 #define NUMERIC_OPERATOR_DEFINE(__op, __ref)\
 template <class T, size_t N, class TScalar>\

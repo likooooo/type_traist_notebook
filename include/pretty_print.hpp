@@ -32,6 +32,7 @@ inline void use_same_format(std::ostream& a, const std::ostream& b)
     a.width(b.width());
     a.fill(b.fill());
 }
+template<class T, size_t N> inline std::ostream& operator<<(std::ostream& out, const std::array<T, N>& vec);
 template<class T, class TAlloc> inline std::ostream& operator<<(std::ostream& out, const std::vector<T, TAlloc>& vec)
 {
     out << "[";
