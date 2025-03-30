@@ -204,6 +204,20 @@ template<class T> inline bool is_almost_equal(T a, T b, T epsion = std::numeric_
     return epsion > std::fabs(a-b);
 }
 
+template<class TFrom, class TTo>
+struct convert{
+    constexpr TTo operator()(const TFrom& from){return static_cast<TTo>(from);}
+};
+template<class TFrom, class TTo, size_t N>
+struct convert<std::array<TFrom, N>, std::array<TTo, N>>{
+    constexpr std::array<TTo,N> operator()(const std::array<TFrom,N>& from){
+        std::array<TTo,N> to;
+        for(size_t i = 0; i < N; i++){
+            to.at(i) = convert<TFrom, TTo>{}(from.at(i)); 
+        }
+        return to;
+    }
+};
 
 namespace private_space
 {

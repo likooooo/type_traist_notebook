@@ -2,7 +2,7 @@
 #include <type_traits>
 #include <complex>
 
-template<class T> struct unreachable_constexpr_if{unreachable_constexpr_if(){static_assert(std::is_same_v<T, void>, "template unreachable");}}; 
+template<class T = void> struct unreachable_constexpr_if{unreachable_constexpr_if(){static_assert(std::is_same_v<T, T>, "template unreachable");}}; 
 
 namespace std{
     template<class ...T> struct is_complex: std::false_type{};
@@ -50,6 +50,31 @@ template <class T> struct complex_type<std::complex<T>> {using type = std::compl
 template <class T>struct is_tuple : std::false_type {};
 template <class... Ts> struct is_tuple<std::tuple<Ts...>> : std::true_type {};
 template<class T> constexpr bool is_tuple_v = is_tuple<T>::value;
+
+template <class TTuple, class = std::make_index_sequence<std::tuple_size_v<TTuple>>> struct inverse_tuple_impl;
+template <class TTuple, std::size_t... I> struct inverse_tuple_impl<TTuple, std::index_sequence<I...>> {
+    static_assert(is_tuple_v<TTuple>);
+    using type = std::tuple<
+        std::tuple_element_t<sizeof...(I) - 1 - I, TTuple>...
+    >;
+};
+template <class TTuple>using inverse_tuple_t = typename inverse_tuple_impl<TTuple>::type;
+struct tuple_memory_check
+{
+    //== 运行时检查 tuple 实现是否于预期一致, 目前还无法做到编译时
+    constexpr static bool __tuple_memory_check() {
+        struct S {
+            static constexpr std::tuple<size_t,size_t> value() { return std::make_tuple(101, 202); }
+        };
+        union U{
+            std::tuple<size_t,size_t> t;
+            size_t a[2];
+        }u{S::value()};
+        return (u.a[0] == 202) && (u.a[1] = 101);
+    }
+    tuple_memory_check(){if(!__tuple_memory_check()) throw std::runtime_error("tuple implemnt error");}
+}__check;
+
 
 #if __cplusplus < 202002L
 namespace std{
