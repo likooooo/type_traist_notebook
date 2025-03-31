@@ -10,6 +10,7 @@
 #include <memory>
 #include <mutex>
 #include <cstdarg>
+#include <functional>
 
 //== type to string
 template<class T> inline std::string TypeReflection() {
@@ -195,7 +196,7 @@ template<class T = void> struct debug_print
 {
     static bool& verbose()
     {
-        static bool vb = true;
+        static bool vb = false;
         return vb;
     };     
     static std::ostream& print_to()
@@ -228,6 +229,11 @@ template<class T = void> struct debug_print
         if(!verbose()) return;
         print_table(print_to(), lines, titles, truncate_width);
     }
+    template<class... Args> static void out(Args& ...args)
+    {
+        if(!verbose()) return;
+        ((print_to() << args), ...) << std::endl;
+    }
 };
 template<class T = void> struct error_print : public debug_print<T>
 {
@@ -243,3 +249,4 @@ template <class T> inline std::string to_string(T&& input){
     ss << input;
     return ss.str();
 }
+using debug_unclassified = debug_print<void>;

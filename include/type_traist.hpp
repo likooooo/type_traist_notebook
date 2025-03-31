@@ -1,6 +1,7 @@
 #pragma once 
 #include <type_traits>
 #include <complex>
+#include <vector>
 
 template<class T = void> struct unreachable_constexpr_if{unreachable_constexpr_if(){static_assert(std::is_same_v<T, T>, "template unreachable");}}; 
 
@@ -60,6 +61,15 @@ template <class TTuple, std::size_t... I> struct inverse_tuple_impl<TTuple, std:
     >;
 };
 template <class TTuple>using inverse_tuple_t = typename inverse_tuple_impl<TTuple>::type;
+
+
+template<int N, class ...TArgs> struct select_type {
+    static_assert(N < sizeof...(TArgs), "out of range");
+    using type = std::tuple_element_t<N, std::tuple<TArgs...>>;
+}; 
+template<int N, class ...TArgs> using select_type_t = typename select_type<N, TArgs...>::type;
+
+
 struct tuple_memory_check
 {
     //== 运行时检查 tuple 实现是否于预期一致, 目前还无法做到编译时
@@ -74,7 +84,7 @@ struct tuple_memory_check
         return (u.a[0] == 202) && (u.a[1] = 101);
     }
     tuple_memory_check(){if(!__tuple_memory_check()) throw std::runtime_error("tuple implemnt error");}
-}__check;
+};
 
 
 #if __cplusplus < 202002L
@@ -91,6 +101,11 @@ static inline constexpr void static_for(TCallback&& callback, TArgs&& ...args)
         static_for<i+1, size>(std::forward<TCallback>(callback), std::forward<TArgs>(args)...);
     }
 }
+
+
+template <class T> struct is_vector : std::false_type {};
+template <class T, class A> struct is_vector<std::vector<T, A>> : std::true_type {};
+template <class T> constexpr bool is_vector_v = is_vector<T>::value;
 
 #include "pretty_print.hpp"
 #include "numerics.hpp"

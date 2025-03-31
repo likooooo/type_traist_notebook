@@ -91,14 +91,18 @@ NUMERIC_OPERATOR_DEFINE(*=, &);
 NUMERIC_OPERATOR_DEFINE(*, );
 NUMERIC_OPERATOR_DEFINE(/=, &);
 NUMERIC_OPERATOR_DEFINE(/, );
-LOGIC_OPERATOR_DEFINE(>);
-LOGIC_OPERATOR_DEFINE(>=);
-LOGIC_OPERATOR_DEFINE(<);
-LOGIC_OPERATOR_DEFINE(<=);
-LOGIC_OPERATOR_DEFINE(==);
-LOGIC_OPERATOR_DEFINE(!=);
-LOGIC_OPERATOR_DEFINE(&&);
-LOGIC_OPERATOR_DEFINE(||);
+
+namespace numerics_logic
+{
+    LOGIC_OPERATOR_DEFINE(>);
+    LOGIC_OPERATOR_DEFINE(>=);
+    LOGIC_OPERATOR_DEFINE(<);
+    LOGIC_OPERATOR_DEFINE(<=);
+    LOGIC_OPERATOR_DEFINE(==);
+    LOGIC_OPERATOR_DEFINE(!=);
+    LOGIC_OPERATOR_DEFINE(&&);
+    LOGIC_OPERATOR_DEFINE(||);
+};
 
 template<class T> constexpr inline std::enable_if_t<std::is_arithmetic_v<T>, T> conj (T n){return n;} 
 template<class T> constexpr inline std::enable_if_t<std::is_complex_v<T>, T> conj (T n){return std::conj(n);} 
