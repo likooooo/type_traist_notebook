@@ -8,6 +8,7 @@ void test()
     std::cout << (identity | v) << std::endl;
     std::cout << (vec<vec2<rT>, 1>{v} | v) << std::endl;
     std::cout << (v | rT(2)) << std::endl;
+    std::cout << convert_to<long double>(rT(123)) << std::endl;;
 }
 int main()
 {

@@ -1,1 +1,2 @@
 set(TYPE_TRAIST_NOTEBOOK_VERSION "@PACKAGE_VERSION@")
+add_compile_options(-Wno-c++23-extensions)

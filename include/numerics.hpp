@@ -40,7 +40,10 @@ std::array<T, N> __ref operator __op(std::array<T, N> __ref a, TScalar scalar){\
 template <class T1, class T2, size_t N>\
 std::array<T1, N>__ref operator __op(std::array<T1, N> __ref a, const std::array<T2, N>& b){\
     std::array<T1, N>& result = a;\
-    for(unsigned i = 0; i < a.size(); i++) result.at(i) = a.at(i) __op b.at(i);\
+    if constexpr(std::is_same_v<T1, std::array<T2, N>>)\
+        for(unsigned i = 0; i < result.size(); i++) result.at(i) = a.at(i) __op b;\
+    else\
+        for(unsigned i = 0; i < a.size(); i++) result.at(i) = a.at(i) __op b.at(i);\
     return result;\
 }\
 template <class T, class TAlloc, class TScalar>\
@@ -114,6 +117,12 @@ template<class T, size_t N> constexpr inline std::array<T, N> exp(std::array<T, 
 template<class T, class TAlloc> constexpr inline std::vector<T, TAlloc> conj(std::vector<T, TAlloc> vec){
     if constexpr(std::is_complex_v<T>) for(auto& n : vec) n = std::conj(n);
     return vec;
+}
+template<class T, size_t N> constexpr inline std::array<T, N> floor(std::array<T, N> n){
+    if constexpr(std::is_floating_point_v<T>){
+        for(auto& x:n) x = std::floor(x);
+    }
+    return n;
 }
 template<class T, size_t N> constexpr inline std::array<real_t<T>, N> norm(const std::array<T, N>& n){
     std::array<real_t<T>, N> vec;
@@ -203,21 +212,6 @@ template<class T> inline bool is_almost_equal(T a, T b, T epsion = std::numeric_
     static_assert(std::is_floating_point_v<T>);
     return epsion > std::fabs(a-b);
 }
-
-template<class TFrom, class TTo>
-struct convert{
-    constexpr TTo operator()(const TFrom& from){return static_cast<TTo>(from);}
-};
-template<class TFrom, class TTo, size_t N>
-struct convert<std::array<TFrom, N>, std::array<TTo, N>>{
-    constexpr std::array<TTo,N> operator()(const std::array<TFrom,N>& from){
-        std::array<TTo,N> to;
-        for(size_t i = 0; i < N; i++){
-            to.at(i) = convert<TFrom, TTo>{}(from.at(i)); 
-        }
-        return to;
-    }
-};
 
 namespace private_space
 {

@@ -4,6 +4,7 @@ project(type_traist_notebook
     HOMEPAGE_URL "https://github.com/likooooo/type_traist_notebook"
     LANGUAGES CXX
 )
+add_compile_options(-Wno-c++23-extensions)
 add_subdirectory(test)
 
 file(GLOB_RECURSE HEADERS "include/*.hpp" "include/*.h")

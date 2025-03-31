@@ -42,6 +42,7 @@ template <class T> using complex_t = typename complex_type<T>::type;
 template <class T> using real_t = typename real_type<T>::type;
 template<class T> constexpr static bool is_complex_v = std::is_same_v<T, complex_t<T>>;
 template<class T> constexpr static bool is_real_v = std::is_same_v<T, real_t<T>>;
+template<class T> constexpr static bool is_real_or_complex_v = is_complex_v<T> ||  is_real_v<T>;
 // template specialization
 template <class T> struct real_type<std::complex<T>> { using type = T;};
 template <class T> struct complex_type<std::complex<T>> {using type = std::complex<T>;};
@@ -93,3 +94,4 @@ static inline constexpr void static_for(TCallback&& callback, TArgs&& ...args)
 
 #include "pretty_print.hpp"
 #include "numerics.hpp"
+#include "convert.hpp"
