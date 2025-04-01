@@ -204,6 +204,7 @@ template<class T = void> struct debug_print
         static std::ostream& print_to = std::cout;
         return print_to;
     };   
+    debug_print() = default;
     debug_print(const char *fmt, ...) 
     {
         if(!verbose()) return;
@@ -229,7 +230,7 @@ template<class T = void> struct debug_print
         if(!verbose()) return;
         print_table(print_to(), lines, titles, truncate_width);
     }
-    template<class... Args> static void out(Args& ...args)
+    template<class... Args> static void out(Args&& ...args)
     {
         if(!verbose()) return;
         ((print_to() << args), ...) << std::endl;
@@ -241,7 +242,13 @@ template<class T = void> struct error_print : public debug_print<T>
         static std::ostream& print_to = std::cerr;
         return print_to;
     };  
-    template<class... Args> error_print(Args&& ...args) : debug_print<T>(std::forward<Args>(args)...) {}
+    template<class... Args> error_print(Args&& ...args) : debug_print<T>()
+    {
+        bool verbose = debug_print<T>::verbose();
+        debug_print<T>::verbose() = true;
+        debug_print<T>(std::forward<Args>(args)...);
+        debug_print<T>::verbose() = verbose;
+    }
 };
 
 template <class T> inline std::string to_string(T&& input){
@@ -250,3 +257,4 @@ template <class T> inline std::string to_string(T&& input){
     return ss.str();
 }
 using debug_unclassified = debug_print<void>;
+using error_unclassified = error_print<void>;

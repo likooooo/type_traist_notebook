@@ -1,0 +1,16 @@
+${CMAKE_BINARY_DIR}/test/test_inf_cpp17
+golden;cpp17;
+${CMAKE_BINARY_DIR}/test/test_numerics_cpp17
+golden;cpp17;
+${CMAKE_BINARY_DIR}/test/test_pretty_print_cpp17
+golden;cpp17;
+${CMAKE_BINARY_DIR}/test/test_convert_cpp17
+golden;cpp17;
+${CMAKE_BINARY_DIR}/test/test_inf_cpp20
+golden;cpp20;
+${CMAKE_BINARY_DIR}/test/test_numerics_cpp20
+golden;cpp20;
+${CMAKE_BINARY_DIR}/test/test_pretty_print_cpp20
+golden;cpp20;
+${CMAKE_BINARY_DIR}/test/test_convert_cpp20
+golden;cpp20;
