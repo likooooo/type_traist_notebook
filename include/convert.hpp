@@ -56,6 +56,6 @@ struct convert<std::array<TFrom, N>, std::vector<TTo, TAlloc>>{
 };
 template<class T> // require to_string
 struct convert<T, std::string>{
-    constexpr std::string operator()(const T& from){return to_string(from);}
+    std::string operator()(const T& from){return to_string(from);}
 };
 template<class TTo, class TFrom> TTo convert_to(const TFrom& from){return convert<TFrom, TTo>{}(from);}
