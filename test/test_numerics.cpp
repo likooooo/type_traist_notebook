@@ -3,6 +3,7 @@
 template<class rT>
 void test()
 {
+    using namespace infra;
     matrix2x2<rT> identity{0 ,1, 1, 0};
     vec2<rT> v {3,5};
     std::cout << (identity | v) << std::endl;
