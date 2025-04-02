@@ -1,3 +1,4 @@
+#pragma once
 #include "../type_traist.hpp"
 
 namespace uca
