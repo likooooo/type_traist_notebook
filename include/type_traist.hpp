@@ -31,7 +31,6 @@ template<class T = void> struct unreachable_constexpr_if{unreachable_constexpr_i
 template<class ...T> struct is_complex: std::false_type{};
 template<class T> struct is_complex <std::complex<T>>: std::true_type{};
 template<class T> constexpr static bool is_complex_v = is_complex<T>::value; 
-// template<class T> constexpr static bool is_complex_v = std::is_same_v<T, complex_t<T>>;
 template<class T> constexpr static bool is_real_v = std::is_floating_point_v<T> || std::is_integral_v<T>;
 template<class T> constexpr static bool is_real_or_complex_v = is_complex_v<T> ||  is_real_v<T>;
 
@@ -43,13 +42,25 @@ template <class T> struct real_type {
     static_assert(is_real_or_complex_v<T>);
     using type = std::conditional_t<is_real_v<T>, T, std::complex<T>>;
 };
+// template specialization
+template <class T> struct real_type<std::complex<T>> { using type = T;};
+template <class T> struct complex_type<std::complex<T>> {using type = std::complex<T>;};
 
 //== real & complex number
 template <class T> using complex_t = typename complex_type<T>::type;
 template <class T> using real_t = typename real_type<T>::type;
-// template specialization
-template <class T> struct real_type<std::complex<T>> { using type = T;};
-template <class T> struct complex_type<std::complex<T>> {using type = std::complex<T>;};
+
+//== for mkl 
+// s -> float          | d -> double
+// c -> complex<float> | z -> complex<double>
+template <class T>
+constexpr static bool is_s = std::is_same_v<float, std::remove_cv_t<T>>;
+template <class T>
+constexpr static bool is_d = std::is_same_v<double, std::remove_cv_t<T>>;
+template <class T>
+constexpr static bool is_c = std::is_same_v<std::complex<float>, std::remove_cv_t<T>>;
+template <class T>
+constexpr static bool is_z = std::is_same_v<std::complex<double>, std::remove_cv_t<T>>;
 
 //== is_tuple_v
 template <class T>struct is_tuple : std::false_type {};
