@@ -236,18 +236,47 @@ template<class T = void> struct debug_print
         ((print_to() << args), ...) << std::endl;
     }
 };
-template<class T = void> struct error_print : public debug_print<T>
+template<class T = void> struct error_print 
 {
+    static bool& verbose()
+    {
+        static bool vb = true;
+        return vb;
+    };     
     static std::ostream& print_to(){
         static std::ostream& print_to = std::cerr;
         return print_to;
-    };  
-    template<class... Args> error_print(Args&& ...args) : debug_print<T>()
+    };   
+    error_print() = default;
+    error_print(const char *fmt, ...) 
     {
-        bool verbose = debug_print<T>::verbose();
-        debug_print<T>::verbose() = true;
-        debug_print<T>(std::forward<Args>(args)...);
-        debug_print<T>::verbose() = verbose;
+        if(!verbose()) return;
+        va_list ap;
+        va_start(ap, fmt);
+    
+        std::ostream& os = print_to();
+    
+        va_list ap_copy;
+        va_copy(ap_copy, ap);
+        const int needed_size = vsnprintf(nullptr, 0, fmt, ap_copy) + 1;
+        va_end(ap_copy);
+    
+        std::vector<char> buffer(needed_size);
+        vsnprintf(buffer.data(), buffer.size(), fmt, ap);
+        
+        os << buffer.data();
+        os.flush();
+    
+        va_end(ap);
+    }
+    template<class... Args> error_print(const std::vector<std::tuple<Args...>>& lines, const std::array<std::string, sizeof...(Args)>& titles, size_t truncate_width = 50) {
+        if(!verbose()) return;
+        print_table(print_to(), lines, titles, truncate_width);
+    }
+    template<class... Args> static void out(Args&& ...args)
+    {
+        if(!verbose()) return;
+        ((print_to() << args), ...) << std::endl;
     }
 };
 
