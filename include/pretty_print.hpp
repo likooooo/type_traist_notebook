@@ -168,30 +168,6 @@ template<typename... Args> inline  std::vector<size_t> print_table(const std::ve
     return print_table(std::cout, lines, titles, truncate_width);
 }
 
-
-template<class TStream>class cout_redirect {
-public:
-    explicit cout_redirect(TStream& s) : lock_(get_mutex()),
-            old_buffer_(std::cout.rdbuf(s.rdbuf())) {}
-    cout_redirect(const cout_redirect&) = delete;
-    cout_redirect& operator=(const cout_redirect&) = delete;
-    ~cout_redirect() { std::cout.rdbuf(old_buffer_);}
-    const cout_redirect& operator () () const{
-        return *this;
-    }
-    template<class T> const cout_redirect& operator & (const T&) const{
-        return *this;
-    }
-private:
-    std::lock_guard<std::mutex> lock_; 
-    std::streambuf* old_buffer_;
-    static std::mutex& get_mutex()
-    {
-        static std::mutex lock;
-        return lock;
-    }
-};
-
 template<class T = void> struct debug_print
 {
     static bool& verbose()
@@ -287,3 +263,16 @@ template <class T> inline std::string to_string(T&& input){
 }
 using debug_unclassified = debug_print<void>;
 using error_unclassified = error_print<void>;
+
+template<class T> struct verbose_guard
+{
+    bool backup;
+    verbose_guard(bool print_enable) : backup(print_enable)
+    {
+        std::swap(T::verbose(), backup);
+    }
+    ~verbose_guard()
+    {
+        std::swap(T::verbose(), backup);
+    }
+};
