@@ -32,8 +32,14 @@ template <class T> using vec3 = vec<T, 3>;
 template <class T> using dual_vec = vec2<T>;
 
 #define NUMERIC_OPERATOR_DEFINE(__op, __ref)\
-template <class T, size_t N, class TScalar>\
+template <class T, size_t N, class TScalar, class = std::enable_if_t<is_real_or_complex_v<TScalar>>>\
 std::array<T, N> __ref operator __op(std::array<T, N> __ref a, TScalar scalar){\
+    std::array<T, N>& result = a;\
+    for(unsigned i = 0; i < result.size(); i++) result.at(i) = a.at(i) __op scalar;\
+    return result;\
+}\
+template <class T, size_t N, class TScalar, class = std::enable_if_t<is_real_or_complex_v<TScalar>>>\
+std::array<T, N> __ref operator __op(TScalar scalar, std::array<T, N> __ref a){\
     std::array<T, N>& result = a;\
     for(unsigned i = 0; i < result.size(); i++) result.at(i) = a.at(i) __op scalar;\
     return result;\
@@ -47,8 +53,14 @@ std::array<T1, N>__ref operator __op(std::array<T1, N> __ref a, const std::array
         for(unsigned i = 0; i < a.size(); i++) result.at(i) = a.at(i) __op b.at(i);\
     return result;\
 }\
-template <class T, class TAlloc, class TScalar>\
+template <class T, class TAlloc, class TScalar, class = std::enable_if_t<is_real_or_complex_v<TScalar>>>\
 std::vector<T, TAlloc> __ref operator __op(std::vector<T, TAlloc> __ref a, TScalar scalar){\
+    std::vector<T, TAlloc>& result = a;\
+    for(unsigned i = 0; i < result.size(); i++) result.at(i) = a.at(i) __op scalar;\
+    return result;\
+}\
+template <class T, class TAlloc, class TScalar, class = std::enable_if_t<is_real_or_complex_v<TScalar>>>\
+std::vector<T, TAlloc> __ref operator __op(TScalar scalar, std::vector<T, TAlloc> __ref a){\
     std::vector<T, TAlloc>& result = a;\
     for(unsigned i = 0; i < result.size(); i++) result.at(i) = a.at(i) __op scalar;\
     return result;\
