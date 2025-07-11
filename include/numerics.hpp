@@ -41,7 +41,7 @@ std::array<T, N> __ref operator __op(std::array<T, N> __ref a, TScalar scalar){\
 template <class T, size_t N, class TScalar, class = std::enable_if_t<is_real_or_complex_v<TScalar>>>\
 std::array<T, N> __ref operator __op(TScalar scalar, std::array<T, N> __ref a){\
     std::array<T, N>& result = a;\
-    for(unsigned i = 0; i < result.size(); i++) result.at(i) = a.at(i) __op scalar;\
+    for(unsigned i = 0; i < result.size(); i++) result.at(i) = scalar __op a.at(i) ;\
     return result;\
 }\
 template <class T1, class T2, size_t N>\
@@ -62,7 +62,7 @@ std::vector<T, TAlloc> __ref operator __op(std::vector<T, TAlloc> __ref a, TScal
 template <class T, class TAlloc, class TScalar, class = std::enable_if_t<is_real_or_complex_v<TScalar>>>\
 std::vector<T, TAlloc> __ref operator __op(TScalar scalar, std::vector<T, TAlloc> __ref a){\
     std::vector<T, TAlloc>& result = a;\
-    for(unsigned i = 0; i < result.size(); i++) result.at(i) = a.at(i) __op scalar;\
+    for(unsigned i = 0; i < result.size(); i++) result.at(i) = scalar __op a.at(i);\
     return result;\
 }\
 template <class T, class TAlloc1, class TAlloc2>\
