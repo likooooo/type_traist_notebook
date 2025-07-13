@@ -261,6 +261,11 @@ template <class T> inline std::string to_string(T&& input){
     ss << input;
     return ss.str();
 }
+template <class T> inline std::string to_string(const T& input){
+    std::stringstream ss;
+    ss << input;
+    return ss.str();
+}
 using debug_unclassified = debug_print<void>;
 using error_unclassified = error_print<void>;
 

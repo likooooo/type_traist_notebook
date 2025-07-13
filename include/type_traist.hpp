@@ -61,7 +61,14 @@ template <class T>
 constexpr static bool is_c = std::is_same_v<std::complex<float>, std::remove_cv_t<T>>;
 template <class T>
 constexpr static bool is_z = std::is_same_v<std::complex<double>, std::remove_cv_t<T>>;
-
+template <class T> constexpr const char* get_numerical_type_str_suffix() 
+{
+    if constexpr(is_s<T>) return "s";
+    if constexpr(is_d<T>) return "d";
+    if constexpr(is_c<T>) return "c";
+    if constexpr(is_z<T>) return "z";
+    return "";
+}
 //== is_tuple_v
 template <class T>struct is_tuple : std::false_type {};
 template <class... Ts> struct is_tuple<std::tuple<Ts...>> : std::true_type {};
@@ -114,6 +121,12 @@ static inline constexpr void static_for(TCallback&& callback, TArgs&& ...args)
 template <class T> struct is_vector : std::false_type {};
 template <class T, class A> struct is_vector<std::vector<T, A>> : std::true_type {};
 template <class T> constexpr bool is_vector_v = is_vector<T>::value;
+
+namespace std{
+    template <class T, size_t N> inline constexpr bool is_array_v<std::array<T, N>> = true;
+}
+
+template <class T> constexpr bool is_vec_or_array_v = std::is_array_v<T> || is_vector_v<T>;
 #include "pretty_print.hpp"
 #include "numerics.hpp"
 #include "convert.hpp"
