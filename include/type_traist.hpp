@@ -127,6 +127,21 @@ namespace std{
 }
 
 template <class T> constexpr bool is_vec_or_array_v = std::is_array_v<T> || is_vector_v<T>;
+
+
+template<class Tcell, class T, class Enable = void>
+struct is_type_in_container : std::false_type {}; 
+template<class Tcell, class T> struct is_type_in_container<Tcell, T, std::void_t<typename T::value_type>>
+    : std::conditional_t<
+        std::is_same_v<Tcell, typename T::value_type>,
+        std::true_type,
+        is_type_in_container<Tcell, typename T::value_type>
+      >
+{};
+template <class Tcell, class T> constexpr bool is_type_in_container_v = is_type_in_container<Tcell, T>::value;
+
+
+
 #include "pretty_print.hpp"
 #include "numerics.hpp"
 #include "convert.hpp"
