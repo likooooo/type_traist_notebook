@@ -230,7 +230,7 @@ template<class T, class TAlloc> constexpr inline auto norm(const std::vector<T, 
 }
 template<class T, size_t N> constexpr inline std::array<real_t<T>, N> abs(const std::array<T, N>& n){
     std::array<real_t<T>, N> vec;
-    std::transform(n.begin(), n.end(), std::back_inserter(vec), [](T n){return std::abs(n);});
+    for(size_t i = 0; i < N; i++)vec.at(i) = std::abs(n.at(i));
     return vec;
 }
 template<class T, class TAlloc> constexpr inline auto abs(const std::vector<T, TAlloc>& n){
