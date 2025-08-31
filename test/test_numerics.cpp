@@ -48,6 +48,35 @@ template<class T1, class T2>void vector_logic_test(std::vector<T1> a, std::vecto
     }
     debug_unclassified(rows, {"lhs", "op", "rhs", "result"});
 }
+
+void test_matrix_multiply()
+{
+    const size_t N = 2;
+    const size_t P = 3;
+    matrix<double, N, P> matrix1 = {{
+        {{1.0, 2.0, 3.0}},
+        {{4.0, 5.0, 6.0}}
+    }};
+
+    const size_t M = 2;
+    matrix<double, P, M> matrix2 = {{
+        {{7.0, 8.0}},
+        {{9.0, 10.0}},
+        {{11.0, 12.0}}
+    }};
+    // auto result_matrix = matrix_multiply<double,N, M, P>(matrix1, matrix2);
+    auto result_matrix = matrix_multiply(matrix1, matrix2);
+
+    std::cout << "Matrix 1:" << std::endl;
+    print_matrix(matrix1);
+    std::cout << "\nMatrix 2:" << std::endl;
+    print_matrix(matrix2);
+    
+    std::cout << "\nResult (Matrix 1 * Matrix 2):" << std::endl;
+    print_matrix(result_matrix);
+    assert((result_matrix == matrix2x2<double>{58,64,139,154}));
+}
+
 int main()
 {
     debug_unclassified::verbose() = true;
@@ -70,4 +99,5 @@ int main()
             std::vector<float>{1, 2}
         },  std::vector<size_t>{0, 1, 3}
     );
+    test_matrix_multiply();
 }

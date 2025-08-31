@@ -249,18 +249,18 @@ template<class T, size_t N> constexpr inline real_t<T> vector_norm(const std::ar
     );
 }
 
-template <class T, size_t fast_dim, size_t... dims>
+template <class T, size_t slow_dim, size_t... dims>
 struct matrix_type
 {
     using type = vec<
         typename matrix_type<T, dims...>::type
-        , fast_dim
+        , slow_dim
     >;
 };
-template <class T, size_t fast_dim>
-struct matrix_type<T, fast_dim>
+template <class T, size_t slow_dim>
+struct matrix_type<T, slow_dim>
 {
-    using type = vec<T, fast_dim>;
+    using type = vec<T, slow_dim>;
 };
 
 template <class T, size_t slow_dim, size_t... dims>
@@ -268,6 +268,34 @@ using matrix = typename matrix_type<T, slow_dim, dims...>::type;
 template <class T> using matrix2x3 = matrix<T, 2, 3>; 
 template <class T> using matrix2x2 = matrix<T, 2, 2>; 
 template <class T> using matrix3x3 = matrix<T, 3, 3>; 
+
+//== 改成 matrix 后这里无法自动推导 template 参数???
+// matrix<T, N, M> matrix_multiply(const matrix<T, N, P>& matrix1, const matrix<T, P, M>& matrix2)
+template<class T, size_t N, size_t M, size_t P>
+std::array<std::array<T, M>, N> matrix_multiply(
+    const std::array<std::array<T, P>, N>& matrix1,
+    const std::array<std::array<T, M>, P>& matrix2)
+{
+    matrix<T, N, M> result;
+    for (size_t i = 0; i < N; ++i) {
+        for (size_t j = 0; j < M; ++j) {
+            result[i][j] = 0.0;
+            for (size_t k = 0; k < P; ++k) {
+                result[i][j] += matrix1[i][k] * matrix2[k][j];
+            }
+        }
+    }
+    return result;
+}
+template<class T, size_t N, size_t M>
+void print_matrix(const std::array<std::array<T, M>, N>& matrix) {
+    for (size_t i = 0; i < N; ++i) {
+        for (size_t j = 0; j < M; ++j) {
+            std::cout << matrix[i][j] << " ";
+        }
+        std::cout << std::endl;
+    }
+}
 
 template<class T, size_t N> constexpr inline matrix<T, N, N> set_matrix_row_major(const matrix<T, N, N>& m) {
     matrix<T, N, N> result{};
