@@ -15,7 +15,7 @@ namespace infra
         using cT = complex_t<T>;
         using print_type = std::tuple<std::string, std::string>;
         debug_unclassified("test of <%s>\n", TypeReflection<T>().c_str());
-        debug_unclassified(std::vector<print_type>{print_type(TypeReflection<cT>(), TypeReflection<rT>())}, {" cT", "rT"});
+        debug_unclassified::print_table(std::vector<print_type>{print_type(TypeReflection<cT>(), TypeReflection<rT>())}, {" cT", "rT"});
         debug_unclassified("\n");
         static_assert(std::is_same_v<complex_t<rT>, cT>);
         static_assert(std::is_same_v<real_t<cT>, rT>);
@@ -43,7 +43,7 @@ namespace infra
         debug_unclassified("* start %s\n", __PRETTY_FUNCTION__);
         tuple_memory_check();
         using print_type = std::tuple<std::string, std::string>;
-        debug_unclassified(
+        debug_unclassified::print_table(
             std::vector<print_type>{print_type(TypeReflection<TTuple>(), TypeReflection<TInvTuple>())}, 
             {"tuple", "inverse tuple"}
         );
@@ -54,7 +54,7 @@ namespace infra
         debug_unclassified("* start %s\n", __PRETTY_FUNCTION__);
         using print_type = std::tuple<std::string, std::string>;
         std::array<std::string, 2> status{"NO", "YES"};
-        debug_unclassified(
+        debug_unclassified::print_table(
             std::vector<print_type>{print_type(TypeReflection<T>(), status[is_vector_v<T>])...}, 
             {"", "is vector "}
         );

@@ -145,4 +145,5 @@ template <class Tcell, class T> constexpr bool is_type_in_container_v = is_type_
 #include "pretty_print.hpp"
 #include "numerics.hpp"
 #include "convert.hpp"
+#include "log.hpp"
 

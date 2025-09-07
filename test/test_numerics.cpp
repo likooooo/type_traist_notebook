@@ -46,7 +46,7 @@ template<class T1, class T2>void vector_logic_test(std::vector<T1> a, std::vecto
             }
         );
     }
-    debug_unclassified(rows, {"lhs", "op", "rhs", "result"});
+    debug_unclassified::print_table(rows, {"lhs", "op", "rhs", "result"});
 }
 
 void test_matrix_multiply()

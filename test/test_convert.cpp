@@ -8,7 +8,7 @@ namespace infra
         using Tupe = std::tuple<TTo...>;
         Tupe result(convert_to<TTo>(in)...);
         using print_type = std::tuple<std::string, std::string>;
-        debug_unclassified(
+        debug_unclassified::print_table(
             std::vector<print_type>{
                 print_type{to_string(in), to_string(result)}
             }, {
