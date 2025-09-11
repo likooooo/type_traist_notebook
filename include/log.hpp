@@ -36,7 +36,7 @@ struct basic_print
         const std::array<std::string, sizeof...(Args)>& titles, 
         size_t truncate_width = 50) 
     {
-        if (Derived::verbose()) return;
+        if (!Derived::verbose()) return;
         ::print_table(Derived::print_to(), lines, titles, truncate_width);
     }
     template<class... Args>
