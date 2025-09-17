@@ -1,0 +1,30 @@
+name: C++ CI
+
+# 触发工作流的事件
+on:
+  pull_request:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build_and_test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential cmake
+
+      - name: Configure & Build with cMake
+        run: |
+          cmake -B build
+          cmake --build build
+
+      - name: Run
+        # 运行编译生成的可执行文件，并检查输出
+        run: |
+          cd build && ctest
