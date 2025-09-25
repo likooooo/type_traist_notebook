@@ -6,7 +6,7 @@ struct convert{
         {
             if constexpr(is_complex_v<TTo>) return TTo(from.real(), from.imag());
             else if constexpr(is_real_v<TTo>) return TTo(std::abs(from));
-            else unreachable_constexpr_if<>();
+            else unreachable_constexpr_if();
         }
         else{
             return TTo(from);

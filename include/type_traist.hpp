@@ -84,6 +84,7 @@ template <class T> constexpr const char* get_numerical_type_str_suffix()
     if constexpr(is_d<T>) return "d";
     if constexpr(is_c<T>) return "c";
     if constexpr(is_z<T>) return "z";
+    if constexpr(std::is_same_v<T, int32_t>) return "n";
     return "";
 }
 
