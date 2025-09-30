@@ -114,21 +114,21 @@ template<class T = void> struct trace_print : public basic_print<trace_print<T>>
         std::string time_str;
         if(duration > 1h){
             auto h = std::chrono::duration_cast<std::chrono::hours>(duration);
-            auto m = std::chrono::duration_cast<std::chrono::minutes>(duration % 1h);
+            auto m = std::chrono::duration_cast<std::chrono::minutes>(duration - h);
             std::ostringstream oss;
             oss << h.count() << "h:" << m.count() << "min";
             time_str = oss.str();
         }
         else if(duration > 1min){
             auto m = std::chrono::duration_cast<std::chrono::minutes>(duration);
-            auto s = std::chrono::duration_cast<std::chrono::seconds>(duration % 1min);
+            auto s = std::chrono::duration_cast<std::chrono::seconds>(duration - m);
             std::ostringstream oss;
             oss << m.count() << "min:" << s.count() << "s";
             time_str = oss.str();
         }
         else if(duration > 1s){
             auto s = std::chrono::duration_cast<std::chrono::seconds>(duration);
-            auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(duration % 1ms);
+            auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(duration - s);
             std::ostringstream oss;
             oss << s.count() << "s:" << ms.count() << "ms";
             time_str = oss.str();
