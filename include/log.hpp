@@ -90,14 +90,18 @@ template<class T = void> struct trace_print : public basic_print<trace_print<T>>
         static std::ostream& os = std::cout;
         return os;
     }
+    static int& get_depth()
+    {
+        thread_local static int depth = 0;
+        return depth;
+    }
     template<class ...Args>trace_print(const char* function_name, const char* file, int line, Args&& ...args) 
         : function_name_(function_name), file_(file), line_(line) 
     {
-        thread_local static int depth = 0;
-        depth_ = depth++;
-        start_time_ = std::chrono::high_resolution_clock::now();
+        depth_ = get_depth()++;
         log_entry();
-        print_to() << std::make_tuple(std::forward<Args>(args)...) << std::endl;
+        if constexpr(sizeof...(Args)) print_to() << std::make_tuple(std::forward<Args>(args)...) << std::endl;
+        start_time_ = std::chrono::high_resolution_clock::now();
     }
     
     ~trace_print() 
@@ -135,8 +139,7 @@ template<class T = void> struct trace_print : public basic_print<trace_print<T>>
             time_str = oss.str();
         }
         log_exit(time_str);
-        thread_local static int depth = depth_;
-        depth--;
+        get_depth()--;
     }
     
 private:
@@ -152,7 +155,7 @@ private:
             }
             oss << ")";
         }
-        print_to() << oss.str();
+        print_to() << oss.str() << std::endl;
     }
     void log_exit(const std::string& time_str) const 
     {

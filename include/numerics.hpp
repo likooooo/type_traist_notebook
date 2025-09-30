@@ -291,7 +291,15 @@ template<class T, size_t N, size_t M>
 void print_matrix(const std::array<std::array<T, M>, N>& matrix) {
     for (size_t i = 0; i < N; ++i) {
         for (size_t j = 0; j < M; ++j) {
-            std::cout << matrix[i][j] << " ";
+            std::cout << matrix[i][j] << "\t";
+        }
+        std::cout << std::endl;
+    }
+}
+template<class T> void print_matrix(const std::vector<T>& matrix, int rows, int cols) {
+    for (int i = 0; i < rows; ++i) {
+        for (int j = 0; j < cols; ++j) {
+            std::cout << matrix[i * cols + j] << "\t";
         }
         std::cout << std::endl;
     }
