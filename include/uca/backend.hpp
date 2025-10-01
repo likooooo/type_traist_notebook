@@ -10,9 +10,10 @@ namespace uca
         void (*VtAdd)(const int n, const T *x, T *y);
         void (*integral_x)(vec2<size_t>, T*);
         void (*integral_y)(vec2<size_t>, T*);
-        void (*fft)(real_t<T>*, size_t* shape, size_t n);
-        void (*ifft)(real_t<T>*, size_t* shape, size_t n);
-        void (*fft_outplace)(complex_t<T>*, complex_t<T>*,size_t* shape, size_t n);
-        void (*ifft_outplace)(complex_t<T>*, complex_t<T>*, size_t* shape, size_t n);
+
+        void (*self_fft)(T*, size_t* shape, size_t n);
+        void (*self_ifft)(complex_t<T>*, size_t* shape, size_t n);
+        void (*fft)(const T*, complex_t<T>*,size_t* shape, size_t n);
+        void (*ifft)(const complex_t<T>*, T*, size_t* shape, size_t n);
     };
 }
