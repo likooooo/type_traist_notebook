@@ -10,7 +10,7 @@ add_subdirectory(test)
 file(GLOB_RECURSE HEADERS "include/*.hpp" "include/*.h")
 set(PACKAGE_INCLUDE_INSTALL_DIR include/type_traist_notebook)
 install(FILES ${HEADERS} DESTINATION ${PACKAGE_INCLUDE_INSTALL_DIR})
-install(DIRECTORY "include/uca" DESTINATION ${PACKAGE_INCLUDE_INSTALL_DIR})
+# install(DIRECTORY "include/uca" DESTINATION ${PACKAGE_INCLUDE_INSTALL_DIR})
 
 include(${PROJECT_SOURCE_DIR}/cmake/auto_ctest.cmake)
 
