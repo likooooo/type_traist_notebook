@@ -77,6 +77,20 @@ void test_matrix_multiply()
     assert((result_matrix == matrix2x2<double>{58,64,139,154}));
 }
 
+template<class T, size_t Dim>
+void test_rotate_matrix()
+{
+    using rT = real_t<T>;
+    using cT = complex_t<T>;
+    vec<rT, rotation_combinations<Dim>().size()> angles{0};
+    // auto& rotate_z = angles.at(std::min<size_t>(angles.size() - 1, 1));
+    // rotate_z = 1_PI/6;
+    angles.fill(1_PI/6);
+    std::cout <<"* test_rotate_matrix" 
+        "\n    result          =" << rotate_matrix<rT, Dim>(angles) <<
+        "\n    plane-definition=" << rotation_combinations<Dim>() <<
+        "\n    angles          =" << angles << std::endl << std::endl;
+}
 int main()
 {
     debug_unclassified::verbose() = true;
@@ -100,4 +114,19 @@ int main()
         },  std::vector<size_t>{0, 1, 3}
     );
     test_matrix_multiply();
+
+    test_rotate_matrix<std::complex<float>, 2>();
+    test_rotate_matrix<double, 3>();
+    test_rotate_matrix<float, 4>();
+    bool run_matlab = false;
+    if(run_matlab){
+        const char* cmd = "matlab.exe -batch \""
+            "theta = pi/6;"
+            "R = [cos(theta) -sin(theta); sin(theta) cos(theta)];"
+            "I = [0;1];I1 = [0,0;0,1];"
+            "A = R*I; A1 = R*I1;"
+            "\"R,A,A1;";
+        return system(cmd);
+    }
+    return 0;
 }

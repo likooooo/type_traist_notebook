@@ -272,9 +272,9 @@ template <class T> using matrix3x3 = matrix<T, 3, 3>;
 //== 改成 matrix 后这里无法自动推导 template 参数???
 // matrix<T, N, M> matrix_multiply(const matrix<T, N, P>& matrix1, const matrix<T, P, M>& matrix2)
 template<class T, size_t N, size_t M, size_t P>
-std::array<std::array<T, M>, N> matrix_multiply(
-    const std::array<std::array<T, P>, N>& matrix1,
-    const std::array<std::array<T, M>, P>& matrix2)
+constexpr vec<vec<T, M>, N> matrix_multiply(
+    const vec<vec<T, P>, N>& matrix1,
+    const vec<vec<T, M>, P>& matrix2)
 {
     matrix<T, N, M> result;
     for (size_t i = 0; i < N; ++i) {
@@ -287,6 +287,119 @@ std::array<std::array<T, M>, N> matrix_multiply(
     }
     return result;
 }
+template<class T, size_t N> constexpr matrix<T,N,N> identity_matrix() 
+{
+    matrix<T,N,N> I{};
+    for (size_t i = 0; i < N; i++) {
+        for (size_t j = 0; j < N; j++) {
+            I[i][j] = (i == j ? T(1) : T(0));
+        }
+    }
+    return I;
+}
+template<class rT, size_t Dim> constexpr matrix<rT, Dim, Dim> givens_rotation( size_t i, size_t j, rT angle) 
+{
+    if (i >= Dim || j >= Dim || i == j) return matrix<rT, Dim, Dim>{0};
+
+    matrix<rT, Dim, Dim> G = identity_matrix<rT, Dim>();
+    rT c = std::cos(angle);
+    rT s = std::sin(angle);
+
+    G[i][i] = c;  G[i][j] = -s;
+    G[j][i] = s;  G[j][j] = c;
+
+    return G;
+}
+template<size_t N> constexpr matrix<size_t, (N*(N-1))/2, 2> rotation_combinations() 
+{
+    constexpr size_t M = (N*(N-1))/2;
+    vec<vec2<size_t>, M> out{};
+    size_t idx = 0;
+    for (size_t i = 0; i < N; ++i) {
+        for (size_t j = i + 1; j < N; ++j) {
+            out[idx++] = {i, j};
+        }
+    }
+    return out;
+}
+template<size_t N> constexpr vec<size_t, N> make_perm(size_t i, size_t j) 
+{
+    vec<size_t, N> p{};
+    p[0] = i;
+    p[1] = j;
+    size_t idx = 2;
+    for (size_t k = 0; k < N; ++k) {
+        if (k == i || k == j) continue;
+        p[idx++] = k;
+    }
+    return p;
+}
+template<size_t N> constexpr size_t inversion_count(const vec<size_t, N>& p) {
+    size_t cnt = 0;
+    for (size_t a = 0; a < N; ++a) {
+        for (size_t b = a + 1; b < N; ++b) {
+            if (p[a] > p[b]) ++cnt;
+        }
+    }
+    return cnt;
+}
+
+template<size_t N> constexpr bool is_reverse(size_t i, size_t j) {
+    if (!(i < N && j < N && i != j)) return false; 
+    const auto p = make_perm<N>(i, j);
+    const auto inv = inversion_count<N>(p);
+    return (inv % 2) == 1;
+}
+static_assert(!is_reverse<2>(0,1), "(0,1) 应为正向");
+
+static_assert(!is_reverse<3>(0,1), "(0,1) 应为正向");
+static_assert(!is_reverse<3>(1,2), "(1,2) 应为正向");
+static_assert( is_reverse<3>(0,2), "(0,2) 应为反向");
+
+static_assert(!is_reverse<4>(0,1), "(0,1) 应为正向");
+static_assert( is_reverse<4>(0,2), "(0,2) 应为反向");
+static_assert(!is_reverse<4>(0,3), "(0,3) 应为正向");
+static_assert(!is_reverse<4>(1,2), "(1,2) 应为正向");
+static_assert( is_reverse<4>(1,3), "(1,3) 应为反向");
+static_assert(!is_reverse<4>(2,3), "(2,3) 应为正向");
+
+
+template <typename T, size_t Width, size_t Height>
+constexpr matrix<T, Height, Width> center_corner_flip(const matrix<T, Height, Width>& in)
+{
+    matrix<T, Height, Width> out{};
+    constexpr size_t shiftX = Width  / 2;
+    constexpr size_t shiftY = Height / 2;
+
+    for (size_t y = 0; y < Height; ++y) {
+        for (size_t x = 0; x < Width; ++x) {
+            const size_t nx = (x + shiftX) % Width;
+            const size_t ny = (y + shiftY) % Height;
+            out[ny][nx] = in[y][x];
+        }
+    }
+    return out;
+}
+template<class rT, size_t Dim> constexpr matrix<rT, Dim, Dim> rotate_matrix(
+    vec<rT, Dim *(Dim-1)/2/* n 维旋转群 SO(n) 有 n*(n-1)/2 */> 
+    rotate)
+{
+    matrix<rT, Dim, Dim> R = identity_matrix<rT, Dim>();
+    constexpr auto combs = rotation_combinations<Dim>();
+    for(size_t n = 0; n < combs.size(); n++){
+        auto [i, j] = combs.at(n);
+        if(0 == rotate.at(n)) continue;
+        R = matrix_multiply( 
+            givens_rotation<rT, Dim>(i, j, (1 - 2*int(is_reverse<Dim>(i, j))) * rotate.at(n)), 
+            R
+        ); 
+    }
+    return R;
+}
+
+
+
+
 template<class T, size_t N, size_t M>
 void print_matrix(const std::array<std::array<T, M>, N>& matrix) {
     for (size_t i = 0; i < N; ++i) {
@@ -316,6 +429,18 @@ template<class T, size_t N> constexpr inline matrix<T, N, N> set_matrix_row_majo
 }
 // is_matrix, is_vector
 
+template<class T> auto sum(const T& vec)
+{
+    if      constexpr(is_vec_or_array_v<T>)    return std::accumulate(vec.begin(), vec.end(), typename T::value_type(0));
+    else if constexpr(is_real_or_complex_v<T>) return vec;
+    else    unreachable_constexpr_if();
+}
+template<class T> auto product(const T& vec)
+{
+    if      constexpr(is_vec_or_array_v<T>)    return std::accumulate(vec.begin(), vec.end(), typename T::value_type(1), std::multiplies<typename T::value_type>());
+    else if constexpr(is_real_or_complex_v<T>) return vec;
+    else    unreachable_constexpr_if();
+}
 template<class T, size_t N> constexpr inline T operator | (vec<T, N> row_major_matrix_or_vec, T col_major_vec_or_scalar)
 {
     col_major_vec_or_scalar = conj(col_major_vec_or_scalar);
@@ -345,7 +470,7 @@ template<class T> inline bool is_almost_equal(T a, T b, T epsion = std::numeric_
 
 namespace private_space
 {
-    template<class ...TTo, std::size_t... I>
+    template<class ...TTo, size_t... I>
     inline void decompose_impl(const std::tuple<TTo...>* pFrom, std::tuple<TTo*...> to, int i, std::index_sequence<I...>){
         // 和 tuple 内存布局有关
         ((std::get<I>(to)[i] = std::get<sizeof...(TTo) - 1 - I>(pFrom[i])), ...); 
