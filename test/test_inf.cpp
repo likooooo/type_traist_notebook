@@ -68,7 +68,7 @@ int main()
     debug_unclassified::verbose() = true;
     template_type_convert<int
         , float, std::complex<double>
-        // , std::array<int,2> //error
+        , vec<int,2> //error
     >();
     infra::template_type_check<int, float, double, long double>();
     infra::tuple_test<int, float>();

@@ -26,6 +26,25 @@ namespace std{
     #endif
 }
 
+//== type-traist of stl-container
+template <class T> struct is_vector : std::false_type {};
+template <class T, class A> struct is_vector<std::vector<T, A>> : std::true_type {};
+template <class T> constexpr bool is_vector_v = is_vector<T>::value;
+namespace std{
+    template <class T, size_t N> inline constexpr bool is_array_v<std::array<T, N>> = true;
+}
+template <class T> constexpr bool is_vec_or_array_v = std::is_array_v<T> || is_vector_v<T>;
+template<class Tcell, class T, class Enable = void>
+struct is_type_in_container : std::false_type {}; 
+template<class Tcell, class T> struct is_type_in_container<Tcell, T, std::void_t<typename T::value_type>>
+    : std::conditional_t<
+        std::is_same_v<Tcell, typename T::value_type>,
+        std::true_type,
+        is_type_in_container<Tcell, typename T::value_type>
+      >
+{};
+template <class Tcell, class T> constexpr bool is_type_in_container_v = is_type_in_container<Tcell, T>::value;
+
 template<class T = void> struct unreachable_constexpr_if{unreachable_constexpr_if(){static_assert(!std::is_same_v<T, T>, "template unreachable");}}; 
 
 template<class ...T> struct is_complex: std::false_type{};
@@ -50,6 +69,9 @@ namespace details
 template <class T> struct complex_type<T, std::enable_if_t<details::has_cT_v<T>>> {
     using type = class T::cT;
 };
+template <class T>struct complex_type<T, std::enable_if_t<is_vec_or_array_v<T>>> {
+    using type = typename complex_type<typename T::value_type>::type;
+};
 template <class U> struct complex_type<std::complex<U>> {
     using type = std::complex<U>;
 };
@@ -65,6 +87,9 @@ template <class U> struct real_type<std::complex<U>> {
 };
 template <class T>struct real_type<T, std::enable_if_t<std::is_arithmetic_v<T>>> {
     using type = T;
+};
+template <class T>struct real_type<T, std::enable_if_t<is_vec_or_array_v<T>>> {
+    using type = typename real_type<typename T::value_type>::type;
 };
 template <class T> using complex_t = typename complex_type<T>::type;
 template <class T> using real_t = typename real_type<T>::type;
@@ -131,24 +156,6 @@ static inline constexpr void static_for(TCallback&& callback, TArgs&& ...args)
     }
 }
 
-//== type-traist of stl-container
-template <class T> struct is_vector : std::false_type {};
-template <class T, class A> struct is_vector<std::vector<T, A>> : std::true_type {};
-template <class T> constexpr bool is_vector_v = is_vector<T>::value;
-namespace std{
-    template <class T, size_t N> inline constexpr bool is_array_v<std::array<T, N>> = true;
-}
-template <class T> constexpr bool is_vec_or_array_v = std::is_array_v<T> || is_vector_v<T>;
-template<class Tcell, class T, class Enable = void>
-struct is_type_in_container : std::false_type {}; 
-template<class Tcell, class T> struct is_type_in_container<Tcell, T, std::void_t<typename T::value_type>>
-    : std::conditional_t<
-        std::is_same_v<Tcell, typename T::value_type>,
-        std::true_type,
-        is_type_in_container<Tcell, typename T::value_type>
-      >
-{};
-template <class Tcell, class T> constexpr bool is_type_in_container_v = is_type_in_container<Tcell, T>::value;
 
 #include "pretty_print.hpp"
 #include "numerics.hpp"
