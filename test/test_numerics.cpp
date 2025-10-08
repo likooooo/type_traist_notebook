@@ -76,6 +76,18 @@ void test_matrix_multiply()
     print_matrix(result_matrix);
     assert((result_matrix == matrix2x2<double>{58,64,139,154}));
 }
+void test_matrix_transpose() 
+{
+    constexpr matrix<int, 2, 3> a = {{
+        {1, 2, 3},
+        {4, 5, 6}
+    }};
+    constexpr matrix<int, 3, 2> b = transpose<int, 2, 3>(a);
+    static_assert(b[0][0] == 1);
+    static_assert(b[1][0] == 2);
+    static_assert(b[2][0] == 3);
+}
+
 
 template<class T, size_t Dim>
 void test_rotate_matrix()
@@ -114,7 +126,7 @@ int main()
         },  std::vector<size_t>{0, 1, 3}
     );
     test_matrix_multiply();
-
+    test_matrix_transpose();
     test_rotate_matrix<std::complex<float>, 2>();
     test_rotate_matrix<double, 3>();
     test_rotate_matrix<float, 4>();

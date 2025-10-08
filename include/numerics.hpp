@@ -287,6 +287,24 @@ constexpr vec<vec<T, M>, N> matrix_multiply(
     }
     return result;
 }
+template <class T, size_t M, size_t N>
+constexpr matrix<T, N, M> transpose(const matrix<T, M, N>& mat) 
+{
+    matrix<T, N, M> result{};
+
+    // 在函数内部定义一个 constexpr lambda，用来提取某一列
+    auto get_column = [&](size_t j) constexpr -> std::array<T, M> {
+        std::array<T, M> col{};
+        for (size_t i = 0; i < M; ++i)
+            col[i] = mat[i][j];
+        return col;
+    };
+
+    for (size_t j = 0; j < N; ++j)
+        result[j] = get_column(j);
+
+    return result;
+}
 template<class T, size_t N> constexpr matrix<T,N,N> identity_matrix() 
 {
     matrix<T,N,N> I{};
